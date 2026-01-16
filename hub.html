@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>James Brown – Game Hub</title>
+
+<style>
+:root{
+  --bg:#0b0d10;
+  --panel:#12151b;
+  --accent:#d4af37;
+  --text:#eaeaea;
+  --muted:#8b8f98;
+}
+
+*{box-sizing:border-box;font-family:system-ui,Segoe UI,Roboto,Arial}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* SIDEBAR */
+#sidebar{
+  width:260px;
+  background:var(--panel);
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+#brand{
+  font-size:22px;
+  font-weight:700;
+  color:var(--accent);
+}
+
+#search{
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  outline:none;
+  background:#1a1f27;
+  color:var(--text);
+}
+
+#count{
+  font-size:12px;
+  color:var(--muted);
+}
+
+/* MAIN */
+#main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+/* GRID */
+#grid{
+  padding:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:16px;
+  overflow:auto;
+}
+
+.game{
+  background:#151923;
+  border-radius:12px;
+  padding:18px;
+  text-align:center;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.game:hover{
+  transform:translateY(-4px);
+  background:#1b2130;
+}
+
+.game span{
+  display:block;
+  font-weight:600;
+}
+
+/* PLAYER */
+#player{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:none;
+  flex-direction:column;
+  z-index:50;
+}
+
+#playerBar{
+  background:#111;
+  padding:10px;
+  display:flex;
+  gap:10px;
+}
+
+#playerBar button{
+  padding:8px 14px;
+  border:none;
+  border-radius:6px;
+  background:var(--accent);
+  cursor:pointer;
+  font-weight:600;
+}
+
+#gameFrame{
+  flex:1;
+  border:none;
+}
+
+/* PASSWORD */
+#lock{
+  position:fixed;
+  inset:0;
+  background:var(--bg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+}
+
+#lockBox{
+  background:var(--panel);
+  padding:30px;
+  border-radius:14px;
+  width:300px;
+  text-align:center;
+}
+
+#lockBox input{
+  width:100%;
+  padding:12px;
+  margin-top:12px;
+  border:none;
+  border-radius:8px;
+  background:#1a1f27;
+  color:var(--text);
+}
+
+#lockBox button{
+  margin-top:12px;
+  padding:10px;
+  width:100%;
+  border:none;
+  border-radius:8px;
+  background:var(--accent);
+  font-weight:700;
+  cursor:pointer;
+}
+
+.shake{
+  animation:shake .4s;
+}
+
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-6px)}
+  50%{transform:translateX(6px)}
+  75%{transform:translateX(-6px)}
+}
+</style>
+</head>
+
+<body>
+
+<!-- PASSWORD -->
+<div id="lock">
+  <div id="lockBox">
+    <h2>Enter Access Code</h2>
+    <input id="pw" type="password" placeholder="Password"/>
+    <button onclick="unlock()">Enter</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div id="brand">James Brown</div>
+  <input id="search" placeholder="Search games…" />
+  <div id="count"></div>
+  <div style="margin-top:auto;font-size:12px;color:var(--muted);">
+    © James Brown
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="grid"></div>
+</div>
+
+<!-- PLAYER -->
+<div id="player">
+  <div id="playerBar">
+    <button onclick="closeGame()">Close</button>
+    <button onclick="fullscreen()">Fullscreen</button>
+  </div>
+  <iframe id="gameFrame"></iframe>
+</div>
+
+<script src="games.js"></script>
+
+<script>
+/* PASSWORD */
+function unlock(){
+  const box=document.getElementById("lockBox");
+  if(document.getElementById("pw").value==="kingjames22"){
+    document.getElementById("lock").style.display="none";
+  }else{
+    box.classList.remove("shake");
+    void box.offsetWidth;
+    box.classList.add("shake");
+  }
+}
+
+/* BUILD GRID */
+const grid=document.getElementById("grid");
+const count=document.getElementById("count");
+
+function render(list){
+  grid.innerHTML="";
+  list.forEach(g=>{
+    const d=document.createElement("div");
+    d.className="game";
+    d.innerHTML=`<span>${g.title}</span>`;
+    d.onclick=()=>openGame(g);
+    grid.appendChild(d);
+  });
+  count.textContent=`${list.length} games`;
+}
+
+render(games);
+
+/* SEARCH */
+document.getElementById("search").oninput=e=>{
+  const q=e.target.value.toLowerCase();
+  render(games.filter(g=>g.title.toLowerCase().includes(q)));
+};
+
+/* PLAYER */
+function openGame(game){
+  const iframe=document.getElementById("gameFrame");
+  iframe.src=`html/${game.file}`; // LOCAL
+  // iframe.src=`https://cdn.jsdelivr.net/gh/jamesbrownedu/homework-assets/html/${game.file}`;
+  document.getElementById("player").style.display="flex";
+}
+
+function closeGame(){
+  const iframe=document.getElementById("gameFrame");
+  iframe.src="";
+  document.getElementById("player").style.display="none";
+}
+
+function fullscreen(){
+  document.getElementById("gameFrame").requestFullscreen();
+}
+</script>
+
+</body>
+</html>
