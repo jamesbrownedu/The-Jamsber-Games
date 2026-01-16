@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>James Brown – Game Hub</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Jamsber Games</title>
 
 <style>
 :root{
@@ -45,7 +45,6 @@ body{
   padding:10px;
   border-radius:8px;
   border:none;
-  outline:none;
   background:#1a1f27;
   color:var(--text);
 }
@@ -55,20 +54,17 @@ body{
   color:var(--muted);
 }
 
-/* MAIN */
+/* GRID */
 #main{
   flex:1;
-  display:flex;
-  flex-direction:column;
+  overflow:auto;
 }
 
-/* GRID */
 #grid{
   padding:20px;
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
   gap:16px;
-  overflow:auto;
 }
 
 .game{
@@ -81,13 +77,8 @@ body{
 }
 
 .game:hover{
-  transform:translateY(-4px);
   background:#1b2130;
-}
-
-.game span{
-  display:block;
-  font-weight:600;
+  transform:translateY(-4px);
 }
 
 /* PLAYER */
@@ -112,8 +103,8 @@ body{
   border:none;
   border-radius:6px;
   background:var(--accent);
-  cursor:pointer;
   font-weight:600;
+  cursor:pointer;
 }
 
 #gameFrame{
@@ -152,8 +143,8 @@ body{
 
 #lockBox button{
   margin-top:12px;
-  padding:10px;
   width:100%;
+  padding:10px;
   border:none;
   border-radius:8px;
   background:var(--accent);
@@ -180,19 +171,16 @@ body{
 <div id="lock">
   <div id="lockBox">
     <h2>Enter Access Code</h2>
-    <input id="pw" type="password" placeholder="Password"/>
+    <input id="pw" type="password" placeholder="Password">
     <button onclick="unlock()">Enter</button>
   </div>
 </div>
 
 <!-- SIDEBAR -->
 <div id="sidebar">
-  <div id="brand">James Brown</div>
-  <input id="search" placeholder="Search games…" />
+  <div id="brand">The Jamsber Games</div>
+  <input id="search" placeholder="Search games">
   <div id="count"></div>
-  <div style="margin-top:auto;font-size:12px;color:var(--muted);">
-    © James Brown
-  </div>
 </div>
 
 <!-- MAIN -->
@@ -209,7 +197,8 @@ body{
   <iframe id="gameFrame"></iframe>
 </div>
 
-<script src="games.js"></script>
+<!-- LOAD GAMES FIRST -->
+<script src="https://cdn.jsdelivr.net/gh/jamesbrownedu/The-Jamsber-Games@main/games.js"></script>
 
 <script>
 /* PASSWORD */
@@ -224,7 +213,7 @@ function unlock(){
   }
 }
 
-/* BUILD GRID */
+/* GRID RENDER */
 const grid=document.getElementById("grid");
 const count=document.getElementById("count");
 
@@ -233,14 +222,12 @@ function render(list){
   list.forEach(g=>{
     const d=document.createElement("div");
     d.className="game";
-    d.innerHTML=`<span>${g.title}</span>`;
+    d.textContent=g.title;
     d.onclick=()=>openGame(g);
     grid.appendChild(d);
   });
-  count.textContent=`${list.length} games`;
+  count.textContent=list.length+" games";
 }
-
-render(games);
 
 /* SEARCH */
 document.getElementById("search").oninput=e=>{
@@ -251,20 +238,27 @@ document.getElementById("search").oninput=e=>{
 /* PLAYER */
 function openGame(game){
   const iframe=document.getElementById("gameFrame");
-  iframe.src=`html/${game.file}`; // LOCAL
-  // iframe.src=`https://cdn.jsdelivr.net/gh/jamesbrownedu/homework-assets/html/${game.file}`;
+  iframe.src=`https://cdn.jsdelivr.net/gh/jamesbrownedu/The-Jamsber-Games@main/html/${game.file}`;
   document.getElementById("player").style.display="flex";
 }
 
 function closeGame(){
-  const iframe=document.getElementById("gameFrame");
-  iframe.src="";
+  document.getElementById("gameFrame").src="";
   document.getElementById("player").style.display="none";
 }
 
 function fullscreen(){
   document.getElementById("gameFrame").requestFullscreen();
 }
+
+/* FINAL SAFE LOAD */
+window.onload=()=>{
+  if(typeof games!=="undefined"){
+    render(games);
+  }else{
+    alert("games.js failed to load");
+  }
+};
 </script>
 
 </body>
